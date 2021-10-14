@@ -6,12 +6,12 @@ import random
 import svgwrite as svg
 import aabbtree as aabb
 
-bounds = [0, 0, 2000, 2000]
+bounds = [0, 0, 4000, 4000]
 area = BoxCollider(rect = np.array([bounds[:2:], bounds[2::]]))
 tree = aabb.AABBTree()
 
 initial_option = BranchOption(
-    origin = (1000, 1000),
+    origin = (2000, 2000),
     direction = constrain_direction(random.randint(0,10000)),
     parent = None
 )
@@ -24,14 +24,21 @@ def gen_circle(option):
 def gen_line(option):
     return LineSegment(branch = option, length = random.uniform(50, 200), padding = 9)
 
+def gen_perpendicular_diamond(option):
+    minor_radius = random.uniform(5, 30)
+    return PerpendicularDiamond(branch = option, minor_radius = minor_radius, major_radius = minor_radius * 7, padding = 9)
+
 count = 0
-while count < 300:
+while count < 400:
     index = random.randint(0, len(options) - 1)
     options[index], options[-1] = options[-1], options[index] # swap a random index to the end
     option = options.pop()
 
     element = random.choice([
+        gen_perpendicular_diamond,
         gen_circle,
+        gen_line,
+        gen_line,
         gen_line
     ])(option)
     
@@ -39,11 +46,12 @@ while count < 300:
         tree.add(element.box.box, element)
         new_options = element.get_branch_options()
         options.append(new_options[0])
-        if isinstance(element, Circle):
+        if not isinstance(element, LineSegment):
             options.append(new_options[1][0])
             options.append(new_options[1][1])
         count += 1
-    elif len(options) <= 1:
+    #elif len(options) <= 1:
+    else:
         options.append(option)
 
 dwg = svg.Drawing("test.svg", ('20cm', '20cm'))
