@@ -34,6 +34,9 @@ class Circle():
             )
 
         forward = generate_option(self.branch.direction)
-        perpendiculars = [generate_option(constrain_direction(self.branch.direction + turn)) for turn in [-1, 1]]
+        perpendiculars = [
+            generate_option(constrain_direction(self.branch.direction + turn))
+            for turn in [-1, 1]
+        ]
         return [forward, perpendiculars]
         
