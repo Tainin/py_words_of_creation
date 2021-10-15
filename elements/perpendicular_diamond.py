@@ -1,12 +1,8 @@
 from utils import *
 from layout import *
 
-def is_minor_direction(direction, forward):
-    return (direction % 2) == (forward % 2)
-
-def get_reletive_point(direction, radii, forward):
-    radius = radii[0] if is_minor_direction(direction, forward) else radii[1]
-    return direction_to_vector(direction) * radius
+def choose_radius(radii, direction, forward):
+    return radii[constrain_direction(direction - forward) % 2]
 
 class PerpendicularDiamond():
     def __init__(self, *args, **kwargs):
@@ -20,34 +16,22 @@ class PerpendicularDiamond():
         vector = direction_to_vector(self.branch.direction)
         self.center = self.branch.origin + (vector * self.radii[0])
 
-        self.points = [get_reletive_point(
-                self.branch.direction + turn,
-                self.radii, self.branch.direction
-            ) for turn in range(4)
-        ]
+        data = ((d, direction_to_vector(d)) for d in range(4))
+        data = ((d, vec, choose_radius(self.radii, d, self.branch.direction))
+                for d, vec in data)
+        data = ((d, vec * radius, vec * (radius + padding))
+                for d, vec, radius in data)
+        data = ((d, self.center + vec, self.center + padded_vec)
+                for d, vec, padded_vec in data)
+        data = ((point, padded_point,
+                 create_option(self, point, d, self.branch.direction))
+                for d, point, padded_point in data)
 
-        self.box = BoxCollider(
-            rect = [self.center + point + normalized(point) * padding for point in self.points]
-        )
+        data = zip(*data)
+        self.points = next(data)
+        self.box = BoxCollider(rect = next(data))
+        self.branches = next(data)
 
     def draw(self, drawing, line_properties):
-        drawing.add(drawing.polygon([(self.center + point).tolist() for point in self.points],
-                                    fill = 'none',
-                                    **line_properties))
-
-    def get_branch_options(self):
-        def generate_option(direction):
-            return BranchOption(
-                origin = self.center + get_reletive_point(
-                    direction, self.radii, self.branch.direction),
-                direction = direction,
-                parent = self
-            )
-
-        forward = generate_option(self.branch.direction)
-        perpendiculars = [
-            generate_option(constrain_direction(self.branch.direction + turn))
-            for turn in [-1, 1]
-        ]
-        return [forward, perpendiculars]
-            
+        drawing.add(drawing.polygon([point.tolist() for point in self.points],
+                                    fill = 'none', **line_properties))

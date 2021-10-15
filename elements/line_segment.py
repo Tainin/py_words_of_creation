@@ -17,20 +17,20 @@ class LineSegment():
         vector = direction_to_vector(self.branch.direction)
         self.end = self.branch.origin + (vector * self.length)
 
-        self.box = BoxCollider(
-            rect = get_line_segment_rect(self.branch.origin, self.end, padding)
-        )
+        rect = (endpoint + direction_to_vector(direction) * padding
+                for endpoint in (self.branch.origin, self.end)
+                for direction in range(4))
+        self.box = BoxCollider(rect = rect)
+
+        self.branches = [BranchOption(
+            parent = self, origin = self.end,
+            direction = self.branch.direction,
+            branch_type = BranchType.Forward
+        )]
+
 
     def draw(self, drawing, line_properties):
         drawing.add(drawing.line(self.branch.origin.tolist(),
                                  self.end.tolist(),
                                  **line_properties,
                                  stroke_linecap = 'square'))
-
-    def get_branch_options(self):
-        forward = BranchOption(
-            origin = self.end,
-            direction =  self.branch.direction,
-            parent = self
-        )
-        return [forward]

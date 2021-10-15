@@ -1,11 +1,6 @@
 from utils import *
 from layout import *
 
-def get_circle_rect(center, radius, padding):
-    def get_vector(direction):
-        return direction_to_vector(direction) * (radius + padding)
-    return [center + get_vector(direction) for direction in range(4)]
-    
 class Circle():
     def __init__(self, *args, **kwargs):
         self.branch = kwargs.pop('branch')
@@ -15,28 +10,22 @@ class Circle():
         vector = direction_to_vector(self.branch.direction)
         self.center = self.branch.origin + (vector * self.radius)
         
-        self.box = BoxCollider(
-            rect = get_circle_rect(self.center, self.radius, padding)
-        )
+        data = ((d, direction_to_vector(d)) for d in range(4))
+        data = ((d, vec * self.radius, vec * (self.radius + padding))
+                for d, vec in data)
+        data = ((d, self.center + vec, self.center + padded_vec)
+                for d, vec, padded_vec in data)
+        data = ((padded_point,
+                 create_option(self, point, d, self.branch.direction))
+                for d, point, padded_point in data)
+
+        data = zip(*data)
+        self.box = BoxCollider(rect = next(data))
+        self.branches = next(data)
 
     def draw(self, drawing, line_properties):
         drawing.add(drawing.circle(self.center.tolist(),
                                    self.radius,
                                    fill = 'none',
                                    **line_properties))
-
-    def get_branch_options(self):
-        def generate_option(direction):
-            return BranchOption(
-                origin = self.center + (direction_to_vector(direction) * self.radius),
-                direction = direction,
-                parent = self
-            )
-
-        forward = generate_option(self.branch.direction)
-        perpendiculars = [
-            generate_option(constrain_direction(self.branch.direction + turn))
-            for turn in [-1, 1]
-        ]
-        return [forward, perpendiculars]
         
