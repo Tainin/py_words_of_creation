@@ -12,7 +12,7 @@ def gen_circle(option):
     return Circle(branch = option, radius = random.uniform(10, 80), padding = padding)
 
 def gen_line(option):
-    return LineSegment(branch = option, length = random.uniform(50, 200), padding = padding)
+    return LineSegment(branch = option, length = random.uniform(75, 300), padding = padding)
 
 def gen_perpendicular_diamond(option):
     minor_radius = random.uniform(15, 40)
@@ -32,11 +32,14 @@ initial_option = BranchOption(
 options = [initial_option]
 
 count = 0
-while count < 2000:
+goal_count = 500
+previous_count = -1
+while count < goal_count:
     index = random.randint(0, len(options) - 1)
     options[index], options[-1] = options[-1], options[index] # swap a random index to the end
     option = options.pop()
-    if random.random() < 0.1 and len(options) > 2:
+
+    if option.branch_type is BranchType.Perpendicular and random.random() < 0.85 and len(options) > 2:
         continue
         
     element = random.choice([
@@ -59,12 +62,14 @@ while count < 2000:
     else:
         options.append(option)
 
-    option_count = len(options)
+    if count == previous_count:
+        repeat += 1
+    else:
+        repeat = 1
+    previous_count = count
 
-    if (count % 100) == 0:
-        print("Elements: " + str(count))
-        print("Options: " + str(option_count))
-        print()
+    if repeat >= 2:
+        print("Elements: " + str(count) + " Repeated " + str(repeat) + " times")
     
 
 plain = svg.Drawing("test.svg", ('20cm', '20cm'))
