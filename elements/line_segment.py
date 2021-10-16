@@ -28,6 +28,17 @@ class LineSegment():
             branch_type = BranchType.Forward
         )]
 
+        self.branches += [
+            BranchOption(
+                parent = self,
+                origin = (self.branch.origin + self.end) / 2,
+                direction = constrain_direction(
+                    self.branch.direction + turn
+                ),
+                branch_type = BranchType.Perpendicular
+            ) for turn in [-1, 1]
+        ]
+
 
     def draw(self, drawing, line_properties):
         drawing.add(drawing.line(self.branch.origin.tolist(),
