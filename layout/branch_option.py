@@ -22,3 +22,10 @@ class BranchOption():
         self.direction = constrain_direction(kwargs.pop('direction'))
         self.branch_type = kwargs.pop('branch_type')
         self.element = None
+
+    def draw_branch(self, drawing, length, line_properties):
+        start = self.origin.tolist()
+        end = (self.origin + direction_to_vector(self.direction) * length)
+        end = end.tolist()
+
+        drawing.add(drawing.line(start, end, **line_properties))
