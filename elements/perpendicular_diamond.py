@@ -26,13 +26,16 @@ class PerpendicularDiamond():
         self.points = next(data)
         self.box = BoxCollider(rect = next(data))
 
+        branch_directions = (self.branch.direction + turn
+                             for turn in (-1, 0, 1))
+
         self.branches = [
             BranchOption(
                 parent = self, direction = d,
                 branch_type = get_branch_type(d, self.branch.direction),
                 origin = self.center + direction_to_vector(d) *
                     choose_radius(self.radii, d, self.branch.direction)
-            ) for d in range(4)
+            ) for d in branch_directions
         ]
 
     def draw(self, drawing, line_properties):
