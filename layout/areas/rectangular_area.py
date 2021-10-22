@@ -1,4 +1,4 @@
-from layout import box_collider
+from layout import *
 import random
 import numpy as np
 
@@ -18,5 +18,5 @@ class RectangularArea():
         self.box.draw_box(drawing, line_properties)
 
     def get_random_point(self):
-        point = [random.uniform(n, x) for n, x in self.box.limits]
+        point = [random.uniform(n, x) for n, x in self.box.box.limits]
         return np.array(point)

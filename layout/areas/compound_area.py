@@ -9,7 +9,7 @@ class CompoundArea():
 
     def does_element_overlap(self, element):
         return any(area.does_element_overlap(element)
-                   for area in self.suba_areas)
+                   for area in self.sub_areas)
 
     def draw_area(self, drawing, line_properties):
         for area in self.sub_areas:

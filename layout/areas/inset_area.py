@@ -1,4 +1,4 @@
-from layout import box_collider
+from layout import *
 import random
 import numpy as np
 
@@ -7,8 +7,10 @@ class InsetArea():
         inset_distance = kwargs.pop('inset_distance')
         self.outer = kwargs.pop('outer_area')
 
-        points = [(n + inset_distance, x - inset_distance)
-                  for n, x in self.outer.box.limits]
+        limits = ((n + inset_distance, x - inset_distance)
+                  for n, x in self.outer.box.box.limits)
+        limits = zip(*limits)
+        points = [np.array(point) for point in limits]
         self.box = BoxCollider(rect = points)
 
     def all_boxes(self):
@@ -25,5 +27,5 @@ class InsetArea():
         self.outer.box.draw_box(drawing, dotted_line_properties)
 
     def get_random_point(self):
-        point = [random.uniform(n, x) for n, x in self.box.limits]
+        point = [random.uniform(n, x) for n, x in self.box.box.limits]
         return np.array(point)
