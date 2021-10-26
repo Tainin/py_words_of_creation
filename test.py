@@ -18,36 +18,38 @@ def gen_perpendicular_diamond(option):
     minor_radius = random.uniform(15, 40)
     return PerpendicularDiamond(branch = option, minor_radius = minor_radius, major_radius = minor_radius * 7, padding = padding)
 
+def get_corner_rects(corner, inwards_vector, width, length):
+    return [
+        [corner, corner + inwards_vector * np.array([width, length])],
+        [corner, corner + inwards_vector * np.array([length, width])]
+    ]
+
+def get_corner_networks():
+    return [
+        Network(
+            area = CompoundArea(
+                sub_areas = [
+                    InsetArea(
+                        outer_area = RectangularArea(points = rect),
+                        inset_distance = 500
+                    ) for rect in get_corner_rects(corner, inwards, 2500, 6000)
+                ]
+            )
+        ) for corner, inwards in [(np.array([0,0]), np.array([1,1])), (np.array([8000,8000]), np.array([-1,-1]))]
+    ]
+
+def get_circle_networks():
+    return [Network(area = get_circle_area(np.array([4000, 4000]), 3500, 15))]
+
+
 bounds = [0, 0, 8000, 8000]
-
-network_1 = Network(
-    area = CompoundArea(
-        sub_areas = [
-            InsetArea(
-                outer_area = RectangularArea(points = [np.array(point) for point in points]),
-                inset_distance = 900
-            ) for points in [[[0, 0], [6000, 3000]], [[0, 0], [3000, 6000]]]
-        ]
-    )
-)
-
-network_2 = Network(
-    area = CompoundArea(
-        sub_areas = [
-            InsetArea(
-                outer_area = RectangularArea(points = [np.array(point) for point in points]),
-                inset_distance = 900
-            ) for points in [[[8000, 8000], [2000, 5000]], [[8000, 8000], [5000, 2000]]]
-        ]
-    )
-)
-
 layer_area = RectangularArea(points = [np.array([0, 0]), np.array([8000, 8000])])
-networks = [network_1, network_2]
+#networks = get_corner_networks()
+networks = get_circle_networks()
 tree = aabb.AABBTree()
 
 count = 0
-goal_count = 1000
+goal_count = 1900
 while count < goal_count:
     network = random.choice(networks)
     index = random.randint(0, len(network.frontier) - 1)
@@ -96,9 +98,8 @@ for element in all_elements:
     for branch in element.branches:
         branch.draw_branch(annotated, 50, line_properties = {'stroke_width': 3, 'stroke': svg.rgb(0,255,0,'rgb'),})
 
-network_1.area.draw_area(annotated, line_properties = {'stroke_width': 3, 'stroke': svg.rgb(255,0,0,'rgb'),})
-network_2.area.draw_area(annotated, line_properties = {'stroke_width': 3, 'stroke': svg.rgb(255,0,0,'rgb'),})
-
+for network in networks:
+    network.area.draw_area(annotated, line_properties = {'stroke_width': 5, 'stroke': svg.rgb(0,255,0,'rgb'),})
 
 plain.save()
 annotated.save()
