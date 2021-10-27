@@ -6,13 +6,13 @@ import random
 import svgwrite as svg
 import aabbtree as aabb
 
-padding = 19
+padding = 25
 
 def gen_circle(option):
-    return Circle(branch = option, radius = random.uniform(10, 80), padding = padding)
+    return Circle(branch = option, radius = random.uniform(30, 120), padding = padding)
 
 def gen_line(option):
-    return LineSegment(branch = option, length = random.uniform(75, 300), padding = padding)
+    return LineSegment(branch = option, length = random.uniform(75, 500), padding = padding)
 
 def gen_perpendicular_diamond(option):
     minor_radius = random.uniform(15, 40)
@@ -41,6 +41,17 @@ def get_corner_networks():
 def get_circle_networks():
     return [Network(area = get_circle_area(np.array([4000, 4000]), 3500, 15))]
 
+def attempt_element_generation(option):
+    if option.parent is None:
+        return True
+
+    if option.direction % 2 == 1 and random.random() < 0.95:
+        return True
+    if option.direction == option.parent.branch.direction and random.random() < 0.55:
+        return True
+    if random.random() < 0.001:
+        return True
+    return False
 
 bounds = [0, 0, 8000, 8000]
 layer_area = RectangularArea(points = [np.array([0, 0]), np.array([8000, 8000])])
@@ -49,19 +60,19 @@ networks = get_circle_networks()
 tree = aabb.AABBTree()
 
 count = 0
-goal_count = 1900
+goal_count = 1100
+last_percent = 1
 while count < goal_count:
     network = random.choice(networks)
     index = random.randint(0, len(network.frontier) - 1)
     network.frontier[index], network.frontier[-1] = network.frontier[-1], network.frontier[index] # swap a random index to the end
     option = network.frontier.pop()
 
-    if option.branch_type is BranchType.Perpendicular and random.random() < 0.45 and len(network.frontier) > 2:
+    if not attempt_element_generation(option):
+        if len(network.frontier):
+            network.frontier.append(option)
         continue
-
-    if option.branch_type is BranchType.Forward and random.random() < 0.01 and len(network.frontier) > 2:
-        continue
-        
+    
     element = random.choice([
         gen_perpendicular_diamond,
         gen_circle,
@@ -81,6 +92,11 @@ while count < goal_count:
         count += 1
     else:
         network.frontier.append(option)
+
+    percent = float(count) / goal_count * 100
+    if percent - last_percent > 1.0:
+        print(str(count) + " / " + str(goal_count) + " = " + str(int(percent)) + "%")
+        last_percent = percent
     
 
 plain = svg.Drawing("test.svg", ('20cm', '20cm'))
