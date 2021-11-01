@@ -2,6 +2,7 @@ from layout import *
 from utils import *
 from elements import *
 
+import sys
 import random
 import svgwrite as svg
 import aabbtree as aabb
@@ -39,15 +40,25 @@ def get_corner_networks():
     ]
 
 def get_circle_networks():
-    return [Network(area = get_circle_area(np.array([4000, 4000]), 3500, 15))]
+    return [Network(area = get_circle_area(np.array([4000, 4000]), 2500, 15))]
+
+def get_rect_networks():
+    return [
+        Network(
+            area = InsetArea(
+                outer_area = RectangularArea(points = rect),
+                inset_distance = 500
+            )
+        ) for rect in [(np.array([0,0]), np.array([8000,4000])), (np.array([0,4000]), np.array([8000,8000]))]
+    ]
 
 def attempt_element_generation(option):
     if option.parent is None:
         return True
 
-    if option.direction % 2 == 1 and random.random() < 0.95:
+    if option.direction % 2 == 1 and random.random() < 0.91:
         return True
-    if option.direction == option.parent.branch.direction and random.random() < 0.55:
+    if option.direction == option.parent.branch.direction and random.random() < 0.27:
         return True
     if random.random() < 0.001:
         return True
@@ -56,11 +67,12 @@ def attempt_element_generation(option):
 bounds = [0, 0, 8000, 8000]
 layer_area = RectangularArea(points = [np.array([0, 0]), np.array([8000, 8000])])
 #networks = get_corner_networks()
-networks = get_circle_networks()
+#networks = get_circle_networks()
+networks = get_rect_networks()
 tree = aabb.AABBTree()
 
 count = 0
-goal_count = 1100
+goal_count = int(sys.argv[1])
 last_percent = 1
 while count < goal_count:
     network = random.choice(networks)
@@ -69,8 +81,7 @@ while count < goal_count:
     option = network.frontier.pop()
 
     if not attempt_element_generation(option):
-        if len(network.frontier):
-            network.frontier.append(option)
+        network.frontier.append(option)
         continue
     
     element = random.choice([
