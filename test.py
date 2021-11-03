@@ -39,6 +39,35 @@ def get_corner_networks():
         ) for corner, inwards in [(np.array([0,0]), np.array([1,1])), (np.array([8000,8000]), np.array([-1,-1]))]
     ]
 
+def get_edge_rect(origin, in_direction, width, length):
+    in_vector = direction_to_vector(in_direction)
+    edge_vector = direction_to_vector(in_direction + 1)
+
+    x = [origin - (edge_vector * (length / 2)), origin + (edge_vector * (length / 2)) + (in_vector * width)]
+    print(x)
+    return x
+
+def get_frame_networks():
+    return [
+        Network(
+            area = InsetArea(
+                outer_area = RectangularArea(points = get_edge_rect(origin, inwards, 2000, 6000)),
+                inset_distance = 500
+            )
+        ) for origin, inwards in [(np.array([0,4000]), 0), (np.array([4000,0]), 1), (np.array([8000,4000]), 2), (np.array([4000,8000]), 3)]
+    ]
+
+def get_vert_bars_networks():
+    return [
+        Network(
+            area = InsetArea(
+                outer_area = RectangularArea(points = get_edge_rect(origin, inwards, 2000, 6000)),
+                inset_distance = 500
+            )
+        ) for origin, inwards in [(np.array([0,4000]), 0), (np.array([8000,4000]), 2)]
+    ]
+    
+
 def get_circle_networks():
     return [Network(area = get_circle_area(np.array([4000, 4000]), 2500, 15))]
 
@@ -68,7 +97,9 @@ bounds = [0, 0, 8000, 8000]
 layer_area = RectangularArea(points = [np.array([0, 0]), np.array([8000, 8000])])
 #networks = get_corner_networks()
 #networks = get_circle_networks()
-networks = get_rect_networks()
+#networks = get_rect_networks()
+#networks = get_frame_networks()
+networks = get_vert_bars_networks()
 tree = aabb.AABBTree()
 
 count = 0
