@@ -81,6 +81,16 @@ def get_rect_networks():
         ) for rect in [(np.array([0,0]), np.array([8000,4000])), (np.array([0,4000]), np.array([8000,8000]))]
     ]
 
+def get_full_layer_networks():
+    return [
+        Network(
+            area = InsetArea(
+                outer_area = RectangularArea(points = [np.array([0,0]), np.array([8000,8000])]),
+                inset_distance = 500
+            )
+        )
+    ]
+
 def attempt_element_generation(option):
     if option.parent is None:
         return True
@@ -99,7 +109,8 @@ layer_area = RectangularArea(points = [np.array([0, 0]), np.array([8000, 8000])]
 #networks = get_circle_networks()
 #networks = get_rect_networks()
 #networks = get_frame_networks()
-networks = get_vert_bars_networks()
+#networks = get_vert_bars_networks()
+networks = get_full_layer_networks()
 tree = aabb.AABBTree()
 
 count = 0
