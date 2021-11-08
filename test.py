@@ -103,21 +103,20 @@ def attempt_element_generation(option):
         return True
     return False
 
-bounds = [0, 0, 8000, 8000]
-layer_area = RectangularArea(points = [np.array([0, 0]), np.array([8000, 8000])])
-#networks = get_corner_networks()
-#networks = get_circle_networks()
-#networks = get_rect_networks()
-#networks = get_frame_networks()
-#networks = get_vert_bars_networks()
-networks = get_full_layer_networks()
-tree = aabb.AABBTree()
+layer = Layer(bounds = [0, 0, 8000, 8000])
+
+#layer.networks = get_corner_networks()
+layer.networks = get_circle_networks()
+#layer.networks = get_rect_networks()
+#layer.networks = get_frame_networks()
+#layer.networks = get_vert_bars_networks()
+#layer.networks = get_full_layer_networks()
 
 count = 0
 goal_count = int(sys.argv[1])
 last_percent = 1
 while count < goal_count:
-    network = random.choice(networks)
+    network = random.choice(layer.networks)
     index = random.randint(0, len(network.frontier) - 1)
     network.frontier[index], network.frontier[-1] = network.frontier[-1], network.frontier[index] # swap a random index to the end
     option = network.frontier.pop()
@@ -138,9 +137,9 @@ while count < goal_count:
         gen_line
     ])(option)
 
-    if network.area.does_element_overlap(element) and len(element.box.get_overlapping(tree)) <= 1:
+    if network.area.does_element_overlap(element) and len(element.box.get_overlapping(layer.tree)) <= 1:
         option.element = element
-        tree.add(element.box.box, element)
+        layer.tree.add(element.box.box, element)
         network.frontier += element.branches
         count += 1
     else:
@@ -152,23 +151,41 @@ while count < goal_count:
         last_percent = percent
     
 
-plain = svg.Drawing("test.svg", ('20cm', '20cm'))
-plain.viewbox(*bounds)
+plain = layer.get_drawing("test")
+annotated = layer.get_drawing("test_annotated")
 
-annotated = svg.Drawing("test_annotated.svg", ('20cm', '20cm'))
-annotated.viewbox(*bounds)
+line_properties = {
+    'lines': {
+        'stroke_width': 9,
+        'stroke': svg.rgb(0,0,0,'rgb'),
+    },
+    'boxes': {
+        'stroke_width': 3,
+        'stroke': svg.rgb(255,0,0,'rgb'),
+    },
+    'branches': {
+        'stroke_width': 3,
+        'stroke': svg.rgb(0,255,0,'rgb'),
+    },
+    'networks': {
+        'stroke_width': 5,
+        'stroke': svg.rgb(0,0,255,'rgb'),
+    },
+    'layer_area': {
+        'stroke_width': 5,
+        'stroke': svg.rgb(255,0,255,'rgb'),
+    },
+}
 
-all_elements = layer_area.box.get_overlapping(tree)
-for element in all_elements:
-    element.draw(plain, line_properties = {'stroke_width': 9, 'stroke': svg.rgb(0,0,0,'rgb'),})
-    element.draw(annotated, line_properties = {'stroke_width': 9, 'stroke': svg.rgb(0,0,0,'rgb'),})
-for element in all_elements:
-    element.box.draw_box(annotated, line_properties = {'stroke_width': 3, 'stroke': svg.rgb(255,0,0,'rgb'),})
-    for branch in element.branches:
-        branch.draw_branch(annotated, 50, line_properties = {'stroke_width': 3, 'stroke': svg.rgb(0,255,0,'rgb'),})
+annotated_options = {
+    'boxes': True,
+    'branches': True,
+    'networks': True,
+    'layer_area': True,
+}
 
-for network in networks:
-    network.area.draw_area(annotated, line_properties = {'stroke_width': 5, 'stroke': svg.rgb(0,255,0,'rgb'),})
+layer.draw(plain, line_properties)
+layer.draw(annotated, line_properties, annotated_options)
 
 plain.save()
 annotated.save()
