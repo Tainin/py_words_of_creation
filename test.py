@@ -105,8 +105,8 @@ def attempt_element_generation(option):
 
 layer = Layer(bounds = [0, 0, 8000, 8000])
 
-#layer.networks = get_corner_networks()
-layer.networks = get_circle_networks()
+layer.networks = get_corner_networks()
+#layer.networks = get_circle_networks()
 #layer.networks = get_rect_networks()
 #layer.networks = get_frame_networks()
 #layer.networks = get_vert_bars_networks()
@@ -160,11 +160,11 @@ line_properties = {
         'stroke': svg.rgb(0,0,0,'rgb'),
     },
     'boxes': {
-        'stroke_width': 3,
+        'stroke_width': 5,
         'stroke': svg.rgb(255,0,0,'rgb'),
     },
     'branches': {
-        'stroke_width': 3,
+        'stroke_width': 5,
         'stroke': svg.rgb(0,255,0,'rgb'),
     },
     'networks': {
@@ -175,6 +175,10 @@ line_properties = {
         'stroke_width': 5,
         'stroke': svg.rgb(255,0,255,'rgb'),
     },
+    'frontier': {
+        'stroke_width': 5,
+        'stroke': svg.rgb(0,0,255,'rgb'),
+    }
 }
 
 annotated_options = {
@@ -182,6 +186,7 @@ annotated_options = {
     'branches': True,
     'networks': True,
     'layer_area': True,
+    'frontier': True,
 }
 
 layer.draw(plain, line_properties)

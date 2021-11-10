@@ -40,3 +40,8 @@ class Layer():
 
         if draw_options.get('layer_area', False):
             self.area.draw_area(drawing, line_properties['layer_area'])
+
+        if draw_options.get('frontier', False):
+            for net in self.networks:
+                for front in net.frontier:
+                    front.draw_branch(drawing, 50, line_properties['frontier'])
