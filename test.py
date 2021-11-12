@@ -178,7 +178,10 @@ line_properties = {
     'frontier': {
         'stroke_width': 5,
         'stroke': svg.rgb(0,0,255,'rgb'),
-    }
+    },
+    'areas_modifier': {
+        'stroke_dasharray': 50,
+    },
 }
 
 annotated_options = {

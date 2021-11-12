@@ -14,7 +14,7 @@ class RectangularArea():
     def does_element_overlap(self, element):
         return self.box.overlaps_with(element.box)
 
-    def draw_area(self, drawing, line_properties):
+    def draw_area(self, drawing, line_properties, line_modifiers = {}):
         self.box.draw_box(drawing, line_properties)
 
     def get_random_point(self):

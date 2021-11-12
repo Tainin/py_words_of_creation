@@ -11,9 +11,9 @@ class CompoundArea():
         return any(area.does_element_overlap(element)
                    for area in self.sub_areas)
 
-    def draw_area(self, drawing, line_properties):
+    def draw_area(self, drawing, line_properties, line_modifiers = {}):
         for area in self.sub_areas:
-            area.draw_area(drawing, line_properties)
+            area.draw_area(drawing, line_properties, line_modifiers)
 
     def get_random_point(self):
         area = random.choice(self.sub_areas)

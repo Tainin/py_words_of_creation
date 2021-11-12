@@ -19,12 +19,9 @@ class InsetArea():
     def does_element_overlap(self, element):
         return self.box.overlaps_with(element.box)
 
-    def draw_area(self, drawing, line_properties):
+    def draw_area(self, drawing, line_properties, line_modifiers = {}):
         self.box.draw_box(drawing, line_properties)
-        dotted_line_properties = line_properties.copy()
-        dash_length = dotted_line_properties['stroke_width'] * 4
-        dotted_line_properties['stroke_dasharray'] = dash_length
-        self.outer.box.draw_box(drawing, dotted_line_properties)
+        self.outer.box.draw_box(drawing, line_properties | line_modifiers)
 
     def get_random_point(self):
         point = [random.uniform(n, x) for n, x in self.box.box.limits]

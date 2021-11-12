@@ -36,7 +36,7 @@ class Layer():
 
         if draw_options.get('networks', False):
             for network in self.networks:
-                network.area.draw_area(drawing, line_properties['networks'])
+                network.area.draw_area(drawing, line_properties['networks'], line_properties['areas_modifier'])
 
         if draw_options.get('layer_area', False):
             self.area.draw_area(drawing, line_properties['layer_area'])
