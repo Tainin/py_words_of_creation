@@ -1,6 +1,7 @@
 from layout import *
 from utils import *
 from elements import *
+from generators import *
 
 import sys
 import random
@@ -8,16 +9,6 @@ import svgwrite as svg
 import aabbtree as aabb
 
 padding = 25
-
-def gen_circle(option):
-    return Circle(branch = option, radius = random.uniform(30, 120), padding = padding)
-
-def gen_line(option):
-    return LineSegment(branch = option, length = random.uniform(75, 500), padding = padding)
-
-def gen_perpendicular_diamond(option):
-    minor_radius = random.uniform(15, 40)
-    return PerpendicularDiamond(branch = option, minor_radius = minor_radius, major_radius = minor_radius * 7, padding = padding)
 
 def get_corner_rects(corner, inwards_vector, width, length):
     return [
@@ -103,6 +94,17 @@ def attempt_element_generation(option):
         return True
     return False
 
+circle_generators = [get_circle_generator(30, 120, padding)] * 6
+line_generators = [get_line_generator(50, 200, padding)] * 10 + [get_line_generator(300,600, padding)] * 2
+diamond_generators = [get_diamond_generator(15, 45, 7, padding)] * 3
+
+generators = circle_generators + line_generators + diamond_generators
+
+#generators *= 5
+#generators += [get_circle_generator(300, 700, padding)]
+
+print(generators)
+
 layer = Layer(bounds = [0, 0, 8000, 8000])
 
 layer.networks = get_corner_networks()
@@ -125,17 +127,7 @@ while count < goal_count:
         network.frontier.append(option)
         continue
     
-    element = random.choice([
-        gen_perpendicular_diamond,
-        gen_circle,
-        gen_circle,
-        gen_line,
-        gen_line,
-        gen_line,
-        gen_line,
-        gen_line,
-        gen_line
-    ])(option)
+    element = random.choice(generators)(option)
 
     if network.area.does_element_overlap(element) and len(element.box.get_overlapping(layer.tree)) <= 1:
         option.element = element
